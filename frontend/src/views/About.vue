@@ -1,6 +1,8 @@
 <template>
   <div class="about">
     <h1>This is an about page</h1>
+    <el-button @click="addPost(10)">Add 10 posts</el-button>
+    <el-button @click="reset()">Reset</el-button>
     <ul v-if="posts && posts.length">
       <li v-for="post of posts" :key="post.postID">
         <p><strong>{{post.createdBy}}</strong></p>
@@ -16,7 +18,7 @@
   </div>
 </template>
 <script>
-import axios from "axios";
+import { goAPI } from "../http-constants";
 
 export default {
   name: "about",
@@ -26,23 +28,48 @@ export default {
       errors: []
     };
   },
-  async created() {
-    // promise version
-    // axios
-    //   .get(`http://127.0.0.1:8090/api/post`)
-    //   .then(response => {
-    //     this.posts = response.data;
-    //   })
-    //   .catch(e => {
-    //     this.errors.push(e);
-    //   });
-
-    try {
-      const response = await axios.get(`http://localhost:8090/api/post`);
-      this.posts = response.data;
-    } catch (e) {
-      this.errors.push(e);
+  methods: {
+    addPost(size) {
+      goAPI
+        .post(`api/post`, {
+          size: size
+        })
+        .then(response => {
+          this.posts = response.data;
+        })
+        .catch(e => {
+          this.errors.push(e);
+        });
+    },
+    reset() {
+      goAPI
+        .post(`api/reset`)
+        .then(response => {
+          this.posts = response.data;
+        })
+        .catch(e => {
+          this.errors.push(e);
+        });
     }
+  },
+  created() {
+    // promise version
+    goAPI
+      .get(`api/post`)
+      .then(response => {
+        this.posts = response.data;
+      })
+      .catch(e => {
+        this.errors.push(e);
+      });
+
+    // async await  version
+    // try {
+    //   const response = await axios.get(`http://localhost:8090/api/post`);
+    //   this.posts = response.data;
+    // } catch (e) {
+    //   this.errors.push(e);
+    // }
   }
 };
 </script>
